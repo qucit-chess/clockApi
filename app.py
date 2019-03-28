@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 
-from flask import Flask, send_file
+from flask import Flask, send_file, render_template, make_response
 from flask_restful import Resource, Api
 
 
@@ -33,7 +33,14 @@ class Clock(Resource):
         return send_file(filename, mimetype='image/png')
 
 
+class Index(Resource):
+
+    def get(self):
+        return make_response(render_template('index.html'))
+
+
 api.add_resource(Clock, '/clock')
+api.add_resource(Index, '/')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
