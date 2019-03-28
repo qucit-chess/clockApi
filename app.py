@@ -9,7 +9,6 @@ app = Flask(__name__)
 api = Api(app)
 
 PLAYERS = ['BLACK', 'WHITE']
-CLOCK_TOUCHER = 0
 
 
 def take_photo(filename):
@@ -22,14 +21,15 @@ def take_photo(filename):
 
 
 class Clock(Resource):
+    CLOCK_TOUCHER = 0
+
     def get(self):
         # initialize the camera and grab a reference to the raw camera capture
         filename = '/home/pi/pics/'
         filename += datetime.now().strftime("%Y%m%d_%H%M%S%f")
-        filename += "_{player}.png".format(player=PLAYERS[CLOCK_TOUCHER])
+        filename += "_{player}.png".format(player=PLAYERS[self.CLOCK_TOUCHER])
         take_photo(filename)
-        global CLOCK_TOUCHER
-        CLOCK_TOUCHER = 1 - CLOCK_TOUCHER
+        self.CLOCK_TOUCHER = 1 - self.CLOCK_TOUCHER
         return send_file(filename, mimetype='image/png')
 
 
