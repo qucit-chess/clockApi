@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 
-from flask import Flask
+from flask import Flask, send_file
 from flask_restful import Resource, Api
 from picamera import PiCamera
 
@@ -25,7 +25,7 @@ class Clock(Resource):
             camera.capture(filename)
         global CLOCK_TOUCHER
         CLOCK_TOUCHER = 1 - CLOCK_TOUCHER
-        return {'filename': filename}
+        return send_file(filename, mimetype='image/png')
 
 api.add_resource(Clock, '/clock')
 
