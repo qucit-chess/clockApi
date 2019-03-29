@@ -1,8 +1,15 @@
 <html>
     <head>
         <title>Qucit Chess</title>
+        <script>
+            function clock() {
+                fetch("/clock", {
+                    method: "GET"
+                 })
+            }
+        </script>
     </head>
     <body>
-        <button type="button">Click me!</button>
+        <button type="button" onclick="clock()">Click me!</button>
     </body>
 </html>
