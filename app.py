@@ -1,9 +1,11 @@
+import os
 import time
 from datetime import datetime
 
 from flask import Flask, send_file, render_template, make_response
 from flask_restful import Resource, Api
-
+from webargs import fields
+from webargs.flaskparser import use_kwargs
 
 app = Flask(__name__)
 api = Api(app)
@@ -20,16 +22,32 @@ def take_photo(filename):
         camera.capture(filename)
 
 
-class Clock(Resource):
-    CLOCK_TOUCHER = 0
+def create_game_dir():
+    now = datetime.now().strftime("%Y%m%d_%H%M%S%f/")
+    dirname = "/home/pi/pics/" + now
+    os.mkdir(dirname)
+    return dirname
 
-    def get(self):
+class Clock(Resource):
+    clock_toucher = 0
+    current_dir = '/home/pi/pics/'
+
+    args = {
+        'new_game': fields.Bool(location='query', default=False),
+    }
+
+    @use_kwargs(args)
+    def get(self, new_game):
+        if new_game:
+            self.clock_toucher = 0
+            self.current_dir = create_game_dir()
+
         # initialize the camera and grab a reference to the raw camera capture
-        filename = '/home/pi/pics/'
+        filename = self.current_dir
         filename += datetime.now().strftime("%Y%m%d_%H%M%S%f")
-        filename += "_{player}.png".format(player=PLAYERS[self.CLOCK_TOUCHER])
+        filename += "_{player}.png".format(player=PLAYERS[self.clock_toucher])
         take_photo(filename)
-        self.CLOCK_TOUCHER = 1 - self.CLOCK_TOUCHER
+        self.clock_toucher = 1 - self.clock_toucher
         return send_file(filename, mimetype='image/png')
 
 
