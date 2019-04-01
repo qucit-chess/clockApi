@@ -41,7 +41,7 @@ class Clock(Resource):
     current_dir = '/home/pi/pics/'
 
     args = {
-        'new_game': fields.Bool(location='query', default=False),
+        'new_game': fields.Bool(location='query', missing=False),
     }
 
     @use_kwargs(args)
