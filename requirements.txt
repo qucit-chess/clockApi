@@ -1,5 +1,5 @@
 webargs
 flask
 flask_restful
-fabric
+# fabric
 # picamera
