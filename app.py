@@ -2,7 +2,7 @@ import os
 import time
 from datetime import datetime
 
-from flask import Flask, send_file, render_template, make_response
+from flask import Flask, send_file, render_template, make_response, request
 from flask_restful import Resource, Api
 from webargs import fields
 from webargs.flaskparser import use_kwargs
@@ -11,6 +11,13 @@ app = Flask(__name__)
 api = Api(app)
 
 PLAYERS = ['BLACK', 'WHITE']
+
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
 
 
 def take_photo(filename):
@@ -27,6 +34,7 @@ def create_game_dir():
     dirname = "/home/pi/pics/" + now
     os.mkdir(dirname)
     return dirname
+
 
 class Clock(Resource):
     clock_toucher = 0
@@ -57,8 +65,16 @@ class Index(Resource):
         return make_response(render_template('index.html'))
 
 
+class Shutdown(Resource):
+
+    def post(self):
+        shutdown_server()
+        return 'Server shutting down...'
+
+
 api.add_resource(Clock, '/clock')
 api.add_resource(Index, '/')
+api.add_resource(Shutdown, '/shutdown')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
