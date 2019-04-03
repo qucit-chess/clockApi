@@ -1,15 +1,163 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>Qucit Chess</title>
-        <script>
-            function clock() {
-                fetch("/clock", {
-                    method: "GET"
-                 })
-            }
-        </script>
-    </head>
-    <body>
-        <button type="button" onclick="clock()">Click me!</button>
-    </body>
+
+<head>
+  <title>Clock Chess</title>
+  <meta charset="UTF-8">
+  <meta name="description" content="" />
+  <meta name="keywords" content="" />
+</head>
+
+<body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <script>
+    function clock() {
+      fetch('http://192.168.100.100:5000/clock', {
+        method: "GET"
+      });
+    }
+
+    $(document).ready(function() {
+      init();
+    });
+
+    stopIntervals();
+    var clockP1 = 300;
+    var clockP2 = 300;
+    var intervalP1 = null;
+    var intervalP2 = null;
+    var currentPlayer = 0;
+    var isPaused = null;
+    var lastAction = null;
+
+    function init() {
+      console.log('init')
+      var lastAction = 'init';
+      stopIntervals();
+      clockP1 = 300;
+      clockP2 = 300;
+      intervalP1 = null;
+      intervalP2 = null;
+      currentPlayer = 0;
+      isPaused = null;
+      $('.player1').html(clockP1);
+      $('.player2').html(clockP2);
+    }
+
+    function playPause() {
+      console.log('play')
+      lastAction = 'play';
+      stopIntervals();
+      if (isPaused && currentPlayer === 1) {
+        isPaused = false;
+        player1();
+      } else if (currentPlayer === 2) {
+        isPaused = false;
+        player2();
+      } else {
+        isPaused = true;
+      }
+    }
+
+    function player1() {
+      console.log('player1')
+      if (lastAction == 'player1') {
+        return;
+      }
+      lastAction = 'player1';
+      if (isPaused === true) {
+        return;
+      }
+      isPaused = false;
+      currentPlayer = 1;
+      stopIntervals();
+
+      clock();
+
+      intervalP1 = setInterval(function() {
+        if (clockP1 > 0) {
+          clockP1 -= 1;
+          $('.player1').html(clockP1);
+        } else {
+          stopIntervals();
+          $('.player1').html('P1 has lost');
+        }
+      }, 1000);
+    }
+
+    function player2() {
+      console.log('player2')
+      if (lastAction == 'player2') {
+        return;
+      }
+      lastAction = 'player2';
+      if (isPaused === true) {
+        return;
+      }
+      isPaused = false;
+      currentPlayer = 2;
+      stopIntervals();
+
+      clock();
+
+      intervalP2 = setInterval(function() {
+        if (clockP2 > 0) {
+          clockP2 -= 1;
+          $('.player2').html(clockP2);
+        } else {
+          stopIntervals();
+          $('.player2').html('P2 has lost');
+        }
+      }, 1000);
+    }
+
+    function stopIntervals() {
+      if (intervalP1 !== null) {
+        clearInterval(intervalP1);
+        intervalP1 = null;
+      }
+      if (intervalP2 !== null) {
+        clearInterval(intervalP2);
+        intervalP2 = null;
+      }
+    }
+  </script>
+
+  <style>
+    .button {
+      outline: none;
+      min-width: 200px;
+      padding: 40px 20px;
+      margin: 5px;
+      background-color: #EFEFEF;
+      border: 1px solid #DDD;
+      border-radius: 3px;
+      cursor: pointer;
+      color: #444;
+    }
+
+    .button:hover {
+      background-color: #E0E0E0;
+    }
+  </style>
+
+  <button class="button player1" onclick="player1()">
+  </button>
+  <br>
+
+  <button class="button play" onclick="playPause()">
+    Play/Pause
+  </button>
+  <br>
+
+  <button class="button init" onclick="init()">
+    Init
+  </button>
+  <br>
+
+  <button class="button player2" onclick="player2()">
+  </button>
+</body>
+
 </html>
