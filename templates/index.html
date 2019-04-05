@@ -23,8 +23,10 @@
     });
 
     stopIntervals();
-    var clockP1 = 300;
-    var clockP2 = 300;
+    var DURATION = 300;
+    var INCREMENT = 3;
+    var clockP1 = DURATION;
+    var clockP2 = DURATION;
     var intervalP1 = null;
     var intervalP2 = null;
     var currentPlayer = 0;
@@ -35,28 +37,43 @@
       console.log('init')
       var lastAction = 'init';
       stopIntervals();
-      clockP1 = 300;
-      clockP2 = 300;
+      clockP1 = DURATION;
+      clockP2 = DURATION;
       intervalP1 = null;
       intervalP2 = null;
       currentPlayer = 0;
-      isPaused = null;
-      $('.player1').html(clockP1);
-      $('.player2').html(clockP2);
+      pause(null);
+      $('.player1').html(formatClock(clockP1));
+      $('.player2').html(formatClock(clockP2));
+      $('.play').addClass('disabled');
     }
 
     function playPause() {
       console.log('play')
+      if (isPaused == null) {
+        return;
+      }
       lastAction = 'play';
       stopIntervals();
       if (isPaused && currentPlayer === 1) {
-        isPaused = false;
+        pause(false);
         player1();
       } else if (currentPlayer === 2) {
-        isPaused = false;
+        pause(false);
         player2();
       } else {
-        isPaused = true;
+        pause(true);
+      }
+    }
+
+    function pause(_isPaused) {
+      isPaused = _isPaused;
+      if (_isPaused) {
+        $('.player1').addClass('disabled');
+        $('.player2').addClass('disabled');
+      } else {
+        $('.player1').removeClass('disabled');
+        $('.player2').removeClass('disabled');
       }
     }
 
@@ -69,21 +86,34 @@
       if (isPaused === true) {
         return;
       }
-      isPaused = false;
+      $('.play').removeClass('disabled');
+      if (isPaused !== null) {
+        clockP1 += INCREMENT;
+        $('.player1').html(formatClock(clockP1));
+      }
+
+      pause(false);
       currentPlayer = 1;
       stopIntervals();
 
       clock();
 
-      intervalP1 = setInterval(function() {
-        if (clockP1 > 0) {
-          clockP1 -= 1;
-          $('.player1').html(clockP1);
+      intervalP2 = setInterval(function() {
+        if (clockP2 > 0) {
+          clockP2 -= 1;
+          $('.player2').html(formatClock(clockP2));
         } else {
           stopIntervals();
-          $('.player1').html('P1 has lost');
+          $('.player2').html('P2 has lost');
         }
       }, 1000);
+    }
+
+    function formatClock(clock) {
+      var minutes = parseInt(clock / 60, 10);
+      var seconds = clock % 60;
+      seconds = seconds < 10 ? '0' + seconds : seconds;
+      return minutes + ':' + seconds;
     }
 
     function player2() {
@@ -95,19 +125,25 @@
       if (isPaused === true) {
         return;
       }
-      isPaused = false;
+      $('.play').removeClass('disabled');
+      if (isPaused !== null) {
+        clockP2 += INCREMENT;
+        $('.player2').html(formatClock(clockP2));
+      }
+
+      pause(false);
       currentPlayer = 2;
       stopIntervals();
 
       clock();
 
-      intervalP2 = setInterval(function() {
-        if (clockP2 > 0) {
-          clockP2 -= 1;
-          $('.player2').html(clockP2);
+      intervalP1 = setInterval(function() {
+        if (clockP1 > 0) {
+          clockP1 -= 1;
+          $('.player1').html(formatClock(clockP1));
         } else {
           stopIntervals();
-          $('.player2').html('P2 has lost');
+          $('.player1').html('P1 has lost');
         }
       }, 1000);
     }
@@ -122,13 +158,14 @@
         intervalP2 = null;
       }
     }
+
   </script>
 
   <style>
     .button {
       outline: none;
       min-width: 200px;
-      padding: 40px 20px;
+      padding: 80px 20px;
       margin: 5px;
       background-color: #EFEFEF;
       border: 1px solid #DDD;
@@ -137,27 +174,39 @@
       color: #444;
     }
 
+    .button-small {
+      padding: 10px;
+      display: inline-block;
+      min-width: 93px;
+    }
+
     .button:hover {
       background-color: #E0E0E0;
     }
+
+    .button.disabled {
+      cursor: default;
+    }
+
+    .button.disabled:hover {
+      background-color: #BBB;
+    }
+
+    .disabled {
+      background-color: #BBB;
+    }
+
   </style>
 
-  <button class="button player1" onclick="player1()">
-  </button>
+  <button class="button player1" onclick="player1()"></button>
   <br>
 
-  <button class="button play" onclick="playPause()">
-    Play/Pause
-  </button>
+  <button class="button button-small play" onclick="playPause()">▶/&#9208;</button>
+
+  <button class="button button-small init" onclick="init()">↻</button>
   <br>
 
-  <button class="button init" onclick="init()">
-    Init
-  </button>
-  <br>
-
-  <button class="button player2" onclick="player2()">
-  </button>
+  <button class="button player2" onclick="player2()"></button>
 </body>
 
 </html>
