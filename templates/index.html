@@ -89,7 +89,6 @@
       $('.play').removeClass('disabled');
       if (isPaused !== null) {
         clockP1 += INCREMENT;
-        clock();
         $('.player1').html(formatClock(clockP1));
       }
 
@@ -97,6 +96,7 @@
       currentPlayer = 1;
       stopIntervals();
 
+      clock();
 
       intervalP2 = setInterval(function() {
         if (clockP2 > 0) {
@@ -129,12 +129,13 @@
       if (isPaused !== null) {
         clockP2 += INCREMENT;
         $('.player2').html(formatClock(clockP2));
-        clock();
       }
 
       pause(false);
       currentPlayer = 2;
       stopIntervals();
+
+      clock();
 
       intervalP1 = setInterval(function() {
         if (clockP1 > 0) {
