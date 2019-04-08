@@ -20,13 +20,13 @@ def shutdown_server():
     func()
 
 
-def take_photo(filename):
+def take_photo(filename, suffix=''):
     from picamera import PiCamera
     with PiCamera() as camera:
         camera.resolution = (256, 256)
         camera.start_preview()
-        time.sleep(0.5)  # Camera warm-up time
-        camera.capture(filename)
+        time.sleep(0.1)  # Camera warm-up time
+        camera.capture(filename.format(suffix=suffix))
 
 
 def create_game_dir():
@@ -53,8 +53,9 @@ class Clock(Resource):
         # initialize the camera and grab a reference to the raw camera capture
         filename = self.current_dir
         filename += datetime.now().strftime("%Y%m%d_%H%M%S%f")
-        filename += "_{player}.png".format(player=PLAYERS[self.clock_toucher])
-        take_photo(filename)
+        filename += "_{player}_{suffix}.png".format(player=PLAYERS[self.clock_toucher], suffix='{suffix}')
+        take_photo(filename, 'a')
+        take_photo(filename, 'b')
         self.clock_toucher = 1 - self.clock_toucher
         return send_file(filename, mimetype='image/png')
 
