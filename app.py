@@ -2,7 +2,7 @@ import os
 import time
 from datetime import datetime
 
-from flask import Flask, send_file, render_template, make_response, request
+from flask import Flask, send_file, render_template, make_response, request, current_app
 from flask_restful import Resource, Api
 from webargs import fields
 from webargs.flaskparser import use_kwargs
@@ -11,7 +11,7 @@ app = Flask(__name__)
 api = Api(app)
 
 PLAYERS = ['BLACK', 'WHITE']
-
+current_app.config['player'] = 0
 
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
@@ -42,7 +42,6 @@ def create_game_dir():
 
 
 class Clock(Resource):
-    clock_toucher = 0
     current_dir = '/home/pi/pics/'
 
     args = {
@@ -52,18 +51,18 @@ class Clock(Resource):
     @use_kwargs(args)
     def get(self, new_game):
         if new_game:
-            self.clock_toucher = 0
+            current_app.config['player'] = 0
             self.current_dir = create_game_dir()
 
         # initialize the camera and grab a reference to the raw camera capture
         filename = self.current_dir
         filename += datetime.now().strftime("%Y%m%d_%H%M%S%f")
         filename += "_{player}_{suffix}.png"
-        filename_a = filename.format(player=PLAYERS[self.clock_toucher], suffix='a')
-        filename_b = filename.format(player=PLAYERS[self.clock_toucher], suffix='b')
+        filename_a = filename.format(player=PLAYERS[current_app.config['player']], suffix='a')
+        filename_b = filename.format(player=PLAYERS[current_app.config['player']], suffix='b')
         take_photo(filename_a)
         take_photo(filename_b)
-        self.clock_toucher = 1 - self.clock_toucher
+        current_app.config['player'] = 1 - current_app.config['player']
         return send_file(filename_a, mimetype='image/png')
 
 
