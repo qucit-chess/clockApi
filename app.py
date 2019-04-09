@@ -20,14 +20,19 @@ def shutdown_server():
     func()
 
 
-def take_photo(filename, suffix=''):
-    from picamera import PiCamera
-    with PiCamera() as camera:
-        camera.resolution = (256, 256)
-        camera.start_preview()
-        time.sleep(0.1)  # Camera warm-up time
-        camera.capture(filename.format(suffix=suffix))
-
+def take_photo(filename):
+    resolution = (256, 256)
+    try:
+        from picamera import PiCamera
+        with PiCamera() as camera:
+            camera.resolution = resolution
+            camera.start_preview()
+            time.sleep(0.1)  # Camera warm-up time
+            camera.capture(filename)
+    except ImportError:
+        from PIL import Image
+        img = Image.new('RGB', resolution, (255, 255, 255))
+        img.save(filename, "PNG")
 
 def create_game_dir():
     now = datetime.now().strftime("%Y%m%d_%H%M%S%f/")
@@ -53,11 +58,13 @@ class Clock(Resource):
         # initialize the camera and grab a reference to the raw camera capture
         filename = self.current_dir
         filename += datetime.now().strftime("%Y%m%d_%H%M%S%f")
-        filename += "_{player}_{suffix}.png".format(player=PLAYERS[self.clock_toucher], suffix='{suffix}')
-        take_photo(filename, 'a')
-        take_photo(filename, 'b')
+        filename += "_{player}_{suffix}.png"
+        filename_a = filename.format(player=PLAYERS[self.clock_toucher], suffix='a')
+        filename_b = filename.format(player=PLAYERS[self.clock_toucher], suffix='b')
+        take_photo(filename_a)
+        take_photo(filename_b)
         self.clock_toucher = 1 - self.clock_toucher
-        return send_file(filename, mimetype='image/png')
+        return send_file(filename_a, mimetype='image/png')
 
 
 class Index(Resource):
