@@ -6,6 +6,7 @@
   <meta charset="UTF-8">
   <meta name="description" content="" />
   <meta name="keywords" content="" />
+  <link rel="stylesheet" href="angular-material.css">
 </head>
 
 <body>
@@ -13,86 +14,90 @@
 
   <script>
     function clock() {
-      fetch('/clock', {
+      fetch('http://192.168.100.100:5000/clock', {
         method: "GET"
       });
     }
 
-    $(document).ready(function() {
-      init();
-    });
+    function initClock() {
+      fetch('http://192.168.100.100:5000/clock?new_game=true', {
+        method: "GET"
+      });
+    }
 
-    stopIntervals();
     var DURATION = 300;
     var INCREMENT = 3;
+
     var clockP1 = DURATION;
     var clockP2 = DURATION;
     var intervalP1 = null;
     var intervalP2 = null;
     var currentPlayer = 0;
-    var isPaused = null;
-    var lastAction = null;
+    var state = 'init';
+
+
+    $(document).ready(function() {
+      init();
+    });
+
+
+    function isPaused() {
+      return state == 'paused';
+    }
 
     function init() {
       console.log('init')
-      var lastAction = 'init';
+      initClock();
       stopIntervals();
       clockP1 = DURATION;
       clockP2 = DURATION;
       intervalP1 = null;
       intervalP2 = null;
       currentPlayer = 0;
-      pause(null);
+      state = 'init';
       $('.player1').html(formatClock(clockP1));
       $('.player2').html(formatClock(clockP2));
       $('.play').addClass('disabled');
+      $('.player1').removeClass('disabled');
+      $('.player2').removeClass('disabled');
+      $('.player1').removeClass('active');
+      $('.player2').removeClass('active');
     }
 
     function playPause() {
       console.log('play')
-      if (isPaused == null) {
-        return;
-      }
-      lastAction = 'play';
-      stopIntervals();
-      if (isPaused && currentPlayer === 1) {
-        pause(false);
-        player1();
-      } else if (currentPlayer === 2) {
-        pause(false);
-        player2();
-      } else {
-        pause(true);
-      }
-    }
-
-    function pause(_isPaused) {
-      isPaused = _isPaused;
-      if (_isPaused) {
-        $('.player1').addClass('disabled');
-        $('.player2').addClass('disabled');
-      } else {
+      if (state == 'paused') {
+        if (currentPlayer == 1) {
+          player2();
+        } else if (currentPlayer == 2) {
+          player1();
+        }
         $('.player1').removeClass('disabled');
         $('.player2').removeClass('disabled');
+      } else if (state == 'player1' || state == 'player2') {
+        state = 'paused';
+        stopIntervals();
+        $('.player1').addClass('disabled');
+        $('.player2').addClass('disabled');
       }
     }
 
     function player1() {
       console.log('player1')
-      if (lastAction == 'player1') {
+      if (state == 'player1') {
         return;
       }
-      lastAction = 'player1';
-      if (isPaused === true) {
-        return;
-      }
+
+      $('.player1').removeClass('active');
+      $('.player2').addClass('active');
+
       $('.play').removeClass('disabled');
-      if (isPaused !== null) {
+      if (!isPaused()) {
         clockP1 += INCREMENT;
         $('.player1').html(formatClock(clockP1));
       }
 
-      pause(false);
+      state = 'player1';
       currentPlayer = 1;
       stopIntervals();
 
@@ -109,30 +114,23 @@
       }, 1000);
     }
 
-    function formatClock(clock) {
-      var minutes = parseInt(clock / 60, 10);
-      var seconds = clock % 60;
-      seconds = seconds < 10 ? '0' + seconds : seconds;
-      return minutes + ':' + seconds;
-    }
-
     function player2() {
       console.log('player2')
-      if (lastAction == 'player2') {
+      if (state == 'player2') {
         return;
       }
-      lastAction = 'player2';
-      if (isPaused === true) {
-        return;
-      }
+
+      $('.player1').addClass('active');
+      $('.player2').removeClass('active');
+
       $('.play').removeClass('disabled');
-      if (isPaused !== null) {
+      if (!isPaused()) {
         clockP2 += INCREMENT;
         $('.player2').html(formatClock(clockP2));
       }
 
-      pause(false);
-      currentPlayer = 2;
+      state = 'player2';
+      currentPlayer = 1;
       stopIntervals();
 
       clock();
@@ -146,6 +144,13 @@
           $('.player1').html('P1 has lost');
         }
       }, 1000);
+    }
+
+    function formatClock(clock) {
+      var minutes = parseInt(clock / 60, 10);
+      var seconds = clock % 60;
+      seconds = seconds < 10 ? '0' + seconds : seconds;
+      return minutes + ':' + seconds;
     }
 
     function stopIntervals() {
@@ -172,10 +177,20 @@
       border-radius: 3px;
       cursor: pointer;
       color: #444;
+      font-size: 30px;
+      font-weight: 500;
+    }
+
+    .active {
+      background-color: orange !important;
+    }
+
+    .player1 {
+      transform: rotate(180deg);
     }
 
     .button-small {
-      padding: 10px;
+      padding: 30px;
       display: inline-block;
       min-width: 93px;
     }
@@ -198,15 +213,18 @@
 
   </style>
 
-  <button class="button player1" onclick="player1()"></button>
-  <br>
+  <div class="layout-column" style="position: absolute; top: 0; bottom: 0; right: 0; left: 0;">
 
-  <button class="button button-small play" onclick="playPause()">▶/&#9208;</button>
+    <button class="flex button player1" onclick="player1()"></button>
 
-  <button class="button button-small init" onclick="init()">↻</button>
-  <br>
+    <div class="layout-row">
+      <button class="flex button button-small play" onclick="playPause()">▶/&#9208;</button>
 
-  <button class="button player2" onclick="player2()"></button>
+      <button class="flex button button-small init" onclick="init()">↻</button>
+    </div>
+
+    <button class="flex button player2" onclick="player2()"></button>
+  </div>
 </body>
 
 </html>
