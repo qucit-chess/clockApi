@@ -11,7 +11,8 @@ app = Flask(__name__)
 api = Api(app)
 
 PLAYERS = ['BLACK', 'WHITE']
-current_app.config['player'] = 0
+with app.app_context():
+    current_app.config['player'] = 0
 
 def shutdown_server():
     func = request.environ.get('werkzeug.server.shutdown')
@@ -58,11 +59,12 @@ class Clock(Resource):
         filename = self.current_dir
         filename += datetime.now().strftime("%Y%m%d_%H%M%S%f")
         filename += "_{player}_{suffix}.png"
-        filename_a = filename.format(player=PLAYERS[current_app.config['player']], suffix='a')
-        filename_b = filename.format(player=PLAYERS[current_app.config['player']], suffix='b')
+        with app.app_context():
+            filename_a = filename.format(player=PLAYERS[current_app.config['player']], suffix='a')
+            filename_b = filename.format(player=PLAYERS[current_app.config['player']], suffix='b')
+            current_app.config['player'] = 1 - current_app.config['player']
         take_photo(filename_a)
         take_photo(filename_b)
-        current_app.config['player'] = 1 - current_app.config['player']
         return send_file(filename_a, mimetype='image/png')
 
 
