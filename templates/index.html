@@ -13901,7 +13901,7 @@ md-toolbar {
       $('.player2').addClass('active');
 
       $('.play').removeClass('disabled');
-      if (!isPaused()) {
+      if (!isPaused() && state != 'init') {
         clockP1 += INCREMENT;
         $('.player1').html(formatClock(clockP1));
       }
@@ -13933,7 +13933,7 @@ md-toolbar {
       $('.player2').removeClass('active');
 
       $('.play').removeClass('disabled');
-      if (!isPaused()) {
+      if (!isPaused() && state != 'init') {
         clockP2 += INCREMENT;
         $('.player2').html(formatClock(clockP2));
       }
