@@ -13822,15 +13822,23 @@ md-toolbar {
 </style>
 
   <script>
+
+
+var myHeaders = new Headers();
+myHeaders.append('pragma', 'no-cache');
+myHeaders.append('cache-control', 'no-cache');
+
     function clock() {
       fetch('http://192.168.100.100:5000/clock', {
-        method: "GET"
+        method: "GET",
+        headers: myHeaders,
       });
     }
 
     function initClock() {
       fetch('http://192.168.100.100:5000/clock?new_game=true', {
         method: "GET"
+        headers: myHeaders,
       });
     }
 
