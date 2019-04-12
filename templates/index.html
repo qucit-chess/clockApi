@@ -6,6 +6,8 @@
   <meta charset="UTF-8">
   <meta name="description" content="" />
   <meta name="keywords" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+
     <!--  <link rel="stylesheet" href="./angular-material.css">-->
 </head>
 
@@ -14038,15 +14040,15 @@ myHeaders.append('cache-control', 'no-cache');
 
   <div class="layout-column" style="position: absolute; top: 0; bottom: 0; right: 0; left: 0;">
 
-    <button class="flex button player1" onclick="player1()"></button>
+    <button class="flex button player1" touchstart="player1()"></button>
 
     <div class="layout-row">
       <button class="flex button button-small play" onclick="playPause()">▶/&#9208;</button>
 
-      <button class="flex button button-small init" onclick="init()">↻</button>
+      <button class="flex button button-small init" touchstart="init()">↻</button>
     </div>
 
-    <button class="flex button player2" onclick="player2()"></button>
+    <button class="flex button player2" touchstart="player2()"></button>
   </div>
 </body>
 
